@@ -1,0 +1,137 @@
+🧰 Here’s what you should do next to finish Blackbox Exporter setup (on your existing Prometheus 9090 server):
+1. Unpack & Move Blackbox Exporter
+
+You're in the right directory already. Run:
+
+tar -xzf blackbox_exporter-0.27.0.linux-amd64.tar.gz
+sudo mv blackbox_exporter-0.27.0.linux-amd64 /usr/local/bin/blackbox_exporter
+cd /usr/local/bin/blackbox_exporter
+
+
+Check it's there:
+
+ls
+
+
+You should see the blackbox_exporter binary and blackbox.yml config.
+
+2. Create a Systemd Service File
+sudo nano /etc/systemd/system/blackbox_exporter.service
+
+
+Paste this:
+
+[Unit]
+Description=Blackbox Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=root
+ExecStart=/usr/local/bin/blackbox_exporter/blackbox_exporter \
+  --config.file=/usr/local/bin/blackbox_exporter/blackbox.yml \
+  --web.listen-address=:9115
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+
+✅ Note: Blackbox runs on port 9115 by default, not 9090.
+9090 = Prometheus
+9115 = Blackbox Exporter
+
+3. Start & Enable the Service
+sudo systemctl daemon-reload
+sudo systemctl enable blackbox_exporter
+sudo systemctl start blackbox_exporter
+sudo systemctl status blackbox_exporter
+
+
+If it’s running successfully, hit this URL in a browser or curl:
+
+http://<your-server>:9115/probe?target=https://google.com&module=http_2xx
+
+
+✅ You should get probe_success 1 in the output.
+
+4. Add Blackbox to Prometheus Targets
+
+Edit your Prometheus config file:
+
+sudo nano /etc/prometheus/prometheus.yml
+
+
+Add this scrape job:
+
+scrape_configs:
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - https://www.google.com
+          - https://your-api1.att.com
+          - https://your-api2.att.com
+          # (you can later automate this from your MySQL table)
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: localhost:9115
+
+
+Then reload Prometheus:
+
+sudo systemctl restart prometheus
+
+
+Or curl the reload endpoint if enabled:
+
+curl -X POST http://localhost:9090/-/reload
+
+5. Verify in Prometheus UI
+
+Go to:
+
+http://<your-server>:9090/targets
+
+
+You should now see a blackbox job and its targets.
+
+6. Create Grafana Panel
+
+In Grafana, use the Prometheus data source and the metric:
+
+probe_http_status_code
+
+
+or
+
+probe_success
+
+
+Group by instance to show each URL.
+
+For the dashboard you showed, you’ll use a Table Panel and add columns for:
+
+probe_http_status_code (Status Code)
+
+probe_success (Up/Down)
+
+probe_http_version (TLS version)
+
+probe_ssl_earliest_cert_expiry (SSL expiry — use a transformation to show days left)
+
+probe_duration_seconds{phase="resolve"} etc. for DNS/TLS durations
+
+
+
+Once you do this, your dashboard will look exactly like the one in your screenshot ✅.
+
+Would you like me to give you the ready-made Grafana JSON dashboard that matches that exact table layout so you can just import it? (Prometheus + Blackbox)
+
+ChatG
