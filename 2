@@ -1,0 +1,11 @@
+ON ts.APP_NAME LIKE CONCAT('%', je.JOB_NAME, '%')
+
+
+
+ON je.JOB_NAME LIKE CONCAT('%', ts.APP_NAME, '%')
+
+
+SELECT DISTINCT JOB_ENVIRONMENT 
+FROM cqexecution.jenkins_execution;
+
+AND je.JOB_ENVIRONMENT = 'SIT'
