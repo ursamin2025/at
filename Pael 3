@@ -1,0 +1,13 @@
+SELECT 
+  ts.APP_NAME,
+  ts.ENDPOINT_URL,
+  ts.STATUS
+FROM cqeexecution.teststeps ts
+WHERE ts.APP_NAME = '$app_name'
+ORDER BY ts.APP_NAME, ts.ENDPOINT_URL;
+
+
+
+var-app_name=${__data.fields.APP_NAME}
+
+SELECT DISTINCT APP_NAME FROM cqeexecution.teststeps;
