@@ -1,0 +1,12 @@
+SELECT 
+  ts.APP_NAME,
+  ts.ENDPOINT_URL,
+  ts.STATUS,
+  CASE 
+    WHEN ts.STATUS = 'PASS' THEN 'UP'
+    ELSE 'DOWN'
+  END AS STATUS_INDICATOR
+FROM cqeexecution.teststeps ts
+WHERE ts.ENDPOINT_BACKEND = '$backend_name'
+  AND ts.APP_NAME = '$app_name'
+ORDER BY ts.APP_NAME, ts.ENDPOINT_URL;
