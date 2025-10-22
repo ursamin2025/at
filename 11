@@ -1,0 +1,14 @@
+SELECT
+  ts.ENDPOINT_BACKEND,
+  ts.APP_NAME,
+  CASE
+    WHEN SUM(ts.STATUS = 'PASS') = COUNT(*) THEN 'UP'
+    ELSE 'DOWN'
+  END AS STATUS_INDICATOR
+FROM cqeexecution.teststeps ts
+WHERE ts.ENDPOINT_BACKEND IS NOT NULL
+GROUP BY ts.ENDPOINT_BACKEND, ts.APP_NAME
+ORDER BY ts.ENDPOINT_BACKEND, ts.APP_NAME;
+
+
+/d/<panel2_uid>?var-AppName=${__data.fields.APP_NAME}
