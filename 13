@@ -1,0 +1,11 @@
+SELECT
+  ts.ENDPOINT_BACKEND,
+  ts.APP_NAME,
+  ts.ENDPOINT_URL,
+  ts.STATUS
+FROM cqeexecution.teststeps ts
+WHERE (${app_name:single} IS NULL OR ts.APP_NAME = ${app_name:single})
+ORDER BY ts.ENDPOINT_BACKEND, ts.APP_NAME;
+
+
+/d/YOUR_DASHBOARD_UID?viewPanel=YOUR_PANEL2_ID&var-app_name=${__data.fields.APP_NAME}
