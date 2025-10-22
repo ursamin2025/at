@@ -1,0 +1,1 @@
+/d/endpoint_backend?viewPanel=2&var-backend_name=${__data.fields.ENDPOINT_BACKEND}
