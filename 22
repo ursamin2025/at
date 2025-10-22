@@ -1,0 +1,24 @@
+d/3f5bebb9-49af-41a5-8251-cca835207c49/endpoints-test-drillthrough?var-backend_name=${__data.fields.ENDPOINT_BACKEND}&var-app_name=${__data.fields.APP_NAME}
+
+
+SELECT 
+  ts.ENDPOINT_URL,
+  ts.STATUS
+FROM cqeexecution.teststeps ts
+WHERE ts.ENDPOINT_BACKEND = $backend_name
+  AND ts.APP_NAME = $app_nameu
+ORDER BY ts.ENDPOINT_URL;
+
+
+
+SELECT 
+  ts.ENDPOINT_URL,
+  ts.STATUS
+FROM cqeexecution.teststeps ts
+WHERE ts.ENDPOINT_BACKEND = $backend_name
+  AND ts.APP_NAME IN (${app_name:csv})
+ORDER BY ts.ENDPOINT_URL;
+
+
+
+SELECT '$backend_name' AS backend_value, '$app_name' AS app_value;
