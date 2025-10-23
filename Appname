@@ -1,0 +1,15 @@
+SELECT 
+    ts.APP_NAME,
+    CASE 
+        WHEN SUM(ts.STATUS = 'PASS') = COUNT(*) THEN 'UP'
+        ELSE 'DOWN'
+    END AS STATUS_INDICATOR
+FROM cqeexecution.teststeps ts
+WHERE ts.ENDPOINT_BACKEND = '$backend_name'
+  AND (
+        '$environment' = 'All'
+        OR '$environment' = '__all'
+        OR LOWER(ts.ENVIRONMENT) = LOWER('$environment')
+      )
+GROUP BY ts.APP_NAME
+ORDER BY ts.APP_NAME;
