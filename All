@@ -1,0 +1,12 @@
+SELECT 
+    ts.ENDPOINT_BACKEND,
+    CASE 
+        WHEN SUM(CASE WHEN ts.STATUS = 'PASS' THEN 1 ELSE 0 END) = COUNT(*) THEN 'UP'
+        ELSE 'DOWN'
+    END AS STATUS_INDICATOR
+FROM cqeexecution.teststeps ts
+WHERE 
+    (TRIM(LOWER('$backend_name')) = 'all' OR TRIM(LOWER(ts.ENDPOINT_BACKEND)) = TRIM(LOWER('$backend_name')))
+    AND (TRIM(LOWER('$environment')) = 'all' OR TRIM(LOWER(ts.ENVIRONMENT)) = TRIM(LOWER('$environment')))
+GROUP BY ts.ENDPOINT_BACKEND
+ORDER BY ts.ENDPOINT_BACKEND;
