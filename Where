@@ -1,0 +1,6 @@
+WHERE
+  ( '${backend_name}' = 'All'
+    OR ts.ENDPOINT_BACKEND IN (${backend_name:sqlstring}) )
+AND
+  ( '${environment}' = 'All'
+    OR LOWER(ts.ENVIRONMENT) IN (LOWER(${environment:sqlstring})) )
