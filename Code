@@ -1,0 +1,20 @@
+SELECT 
+  ts.APP_NAME AS API,
+  ts.ENDPOINT_URL,
+  CASE 
+    WHEN SUM(ts.STATUS = 'PASS') = COUNT(*) THEN 'UP'
+    ELSE 'DOWN'
+  END AS STATUS_INDICATOR
+FROM cqexecution.teststeps ts
+WHERE 
+  LOWER(ts.ENDPOINT_BACKEND) = LOWER(${backend_name})
+  AND (
+       (${app_name} = 'All')
+       OR LOWER(ts.APP_NAME) = LOWER(${app_name})
+      )
+  AND (
+       (${environment} = 'All')
+       OR LOWER(ts.ENVIRONMENT) = LOWER(${environment})
+      )
+GROUP BY ts.APP_NAME, ts.ENDPOINT_URL
+ORDER BY ts.ENDPOINT_URL;
