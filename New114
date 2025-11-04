@@ -1,0 +1,14 @@
+SELECT 
+  ce.APP_NAME AS API,
+  ce.JOURNEY
+FROM cqexecution.apps_journey_mapping ce
+WHERE 
+  (
+    '${app_name}' = 'All'
+    OR LOWER(ce.APP_NAME) IN (${app_name:csv})
+  )
+  AND (
+    '${backend_name}' = 'All'
+    OR LOWER(ce.BACKEND_NAME) = LOWER(${backend_name})
+  )
+ORDER BY ce.JOURNEY;
