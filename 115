@@ -1,0 +1,16 @@
+SELECT
+  ts.APP_NAME AS API,
+  ts.DEPLOYED_NAME,
+  ts.ENDPOINT_URL,
+  CASE
+    WHEN ts.STATUS = 'PASS' THEN 'UP'
+    ELSE 'DOWN'
+  END AS STATUS_INDICATOR
+FROM cqexecution.teststeps ts
+WHERE
+  ('customer-billing-crm-eapi' = 'All'
+   OR LOWER(ts.APP_NAME) = LOWER('customer-billing-crm-eapi'))
+  AND LOWER(ts.ENDPOINT_BACKEND) = LOWER('Customer Graph')
+  AND ('sit' = 'All'
+       OR LOWER(ts.ENVIRONMENT) = LOWER('sit'))
+ORDER BY ts.ENDPOINT_URL;
