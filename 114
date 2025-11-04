@@ -1,0 +1,20 @@
+SELECT
+  ts.APP_NAME AS API,
+  ts.DEPLOYED_NAME,
+  ts.ENDPOINT_URL,
+  CASE
+    WHEN ts.STATUS = 'PASS' THEN 'UP'
+    ELSE 'DOWN'
+  END AS STATUS_INDICATOR
+FROM cqexecution.teststeps ts
+WHERE
+  (
+    '${app_name}' = 'All'
+    OR LOWER(ts.APP_NAME) = LOWER(${app_name})
+  )
+  AND LOWER(ts.ENDPOINT_BACKEND) = LOWER(${backend_name})
+  AND (
+    '${environment}' = 'All'
+    OR LOWER(ts.ENVIRONMENT) = LOWER(${environment})
+  )
+ORDER BY ts.ENDPOINT_URL;
