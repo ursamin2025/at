@@ -1,0 +1,31 @@
+SELECT
+    ce.APP_NAME AS API,
+    ce.JOURNEY,
+    CASE 
+        -- if ANY status is not PASS, mark the journey DOWN
+        WHEN SUM(CASE WHEN ts.STATUS = 'PASS' THEN 0 ELSE 1 END) > 0 THEN 'DOWN'
+        ELSE 'UP'
+    END AS JOURNEY_STATUS
+FROM cqeexecution.apps_journey_mapping ce
+JOIN cqeexecution.teststeps ts
+    ON TRIM(LOWER(ce.APP_NAME)) = TRIM(LOWER(ts.APP_NAME))
+WHERE
+    -- filter by API dashboard variable
+    ( $app_name = 'All'
+      OR TRIM(LOWER(ce.APP_NAME)) IN ( $app_name )
+    )
+    -- filter by backend *from teststeps* (not from mapping table)
+    AND (
+        $backend_name = 'All'
+        OR TRIM(LOWER(ts.ENDPOINT_BACKEND)) = TRIM(LOWER($backend_name))
+    )
+    -- filter by environment from teststeps
+    AND (
+        $environment = 'All'
+        OR LOWER(ts.ENVIRONMENT) = LOWER($environment)
+    )
+GROUP BY
+    ce.APP_NAME,
+    ce.JOURNEY
+ORDER BY
+    ce.JOURNEY;
