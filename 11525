@@ -1,0 +1,26 @@
+SELECT 
+  ce.APP_NAME AS API,
+  ce.JOURNEY,
+  CASE 
+    WHEN SUM(CASE WHEN ts.STATUS = 'PASS' THEN 1 ELSE 0 END) = COUNT(ts.STATUS)
+      THEN 'UP'
+    ELSE 'DOWN'
+  END AS JOURNEY_STATUS
+FROM cqexecution.apps_journey_mapping ce
+JOIN cqexecution.teststeps ts 
+  ON TRIM(LOWER(ce.APP_NAME)) = TRIM(LOWER(ts.APP_NAME))
+WHERE 
+  (
+    '${app_name}' = 'All'
+    OR TRIM(LOWER(ce.APP_NAME)) IN (${app_name:csv})
+  )
+  AND (
+    '${backend_name}' = 'All'
+    OR TRIM(LOWER(ts.ENDPOINT_BACKEND)) IN (${backend_name:csv})
+  )
+  AND (
+    '${environment}' = 'All'
+    OR TRIM(LOWER(ts.ENVIRONMENT)) = TRIM(LOWER(${environment}))
+  )
+GROUP BY ce.APP_NAME, ce.JOURNEY
+ORDER BY ce.JOURNEY;
