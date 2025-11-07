@@ -1,0 +1,9 @@
+SELECT 
+    ts.TESTCASE_ID, 
+    tc.ID, 
+    tc.TRACE_ID, 
+    tc.SESSION_ID
+FROM cqeexecution.teststeps ts
+JOIN cqeexecution.jenkins_execution_testcase tc
+    ON ts.TESTCASE_ID = tc.ID
+LIMIT 20;
