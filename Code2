@@ -1,0 +1,21 @@
+SELECT
+    tsu.ID AS TESTSUITE_ID,
+    tsu.TESTSUITE AS TESTSUITE_NAME,
+    tsc.ID AS TESTCASE_ID,
+    tsc.TESTCASE AS TESTCASE_NAME,
+    tsc.TESTCASE_STATUS AS STATUS,
+    tsc.TESTCASE_STARTDATE AS START_TIME,
+    tsc.TESTCASE_ENDDATE AS END_TIME,
+    tsc.RETURN AS RETURN_STATUS
+FROM
+    cqeexecution.jenkins_execution_testsuite tsu
+JOIN
+    cqeexecution.jenkins_execution_testcase tsc
+    ON tsc.TEST_SUITE_ID = tsu.ID
+WHERE
+    1 = 1
+    -- optional filter for environment, backend, etc
+    AND (LOWER(tsu.MULE_ENVIRONMENT) = LOWER(${environment}) OR ${environment} = 'All')
+    AND (LOWER(tsu.BUILD_ID) = LOWER(${build_id}) OR ${build_id} = 'All')
+ORDER BY
+    tsu.TESTSUITE, tsc.TESTCASE;
