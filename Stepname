@@ -1,0 +1,13 @@
+SELECT DISTINCT ts.STEPNAME
+FROM cqeexecution.jenkins_execution_teststeps ts
+JOIN cqeexecution.jenkins_execution_testcase tc
+  ON ts.TESTCASE_ID = tc.ID
+JOIN cqeexecution.jenkins_execution_testsuite tsu
+  ON tsu.ID = tc.TEST_SUITE_ID
+JOIN cqeexecution.apps_journey_mapping ce
+  ON TRIM(LOWER(tsu.TESTSUITE)) = TRIM(LOWER(ce.APP_NAME))
+WHERE
+  (${journey} = 'All' OR LOWER(ce.JOURNEY) = LOWER(${journey}))
+  AND (${testsuite} = 'All' OR LOWER(tsu.TESTSUITE) = LOWER(${testsuite}))
+  AND (${testcase} = 'All' OR LOWER(tc.TESTCASE) = LOWER(${testcase}))
+ORDER BY ts.STEPNAME;
