@@ -1,0 +1,147 @@
+SELECT DISTINCT ce.JOURNEY
+FROM cqeexecution.apps_journey_mapping ce
+ORDER BY ce.JOURNEY;
+
+
+
+SELECT
+  tsu.ID AS TESTSUITE_ID,
+  tsu.TESTSUITE AS TESTCASE_NAME,
+  tsu.TESTSUITE_STATUS AS STATUS,
+  tsu.TESTSUITE_STARTDATE AS START_TIME,
+  tsu.TESTSUITE_ENDDATE AS END_TIME
+FROM cqeexecution.jenkins_execution_testsuite tsu
+JOIN cqeexecution.apps_journey_mapping ce
+     ON TRIM(LOWER(tsu.TESTSUITE)) = TRIM(LOWER(ce.APP_NAME))
+WHERE
+  (${journey} = 'All' OR LOWER(ce.JOURNEY) = LOWER(${journey}))
+ORDER BY tsu.TESTSUITE;
+
+
+
+
+SELECT
+  tc.ID AS TESTCASE_ID,
+  tc.TESTCASE AS TESTCASE_NAME,
+  ts.STEPNAME AS TESTSTEP_NAME,
+  ts.ENDPOINT_URL,
+  CASE WHEN ts.STATUS = 'PASS' THEN 'UP' ELSE 'DOWN' END AS STATUS,
+  ts.STARTDATE,
+  ts.ENDDATE
+FROM cqeexecution.jenkins_execution_testcase tc
+JOIN cqeexecution.jenkins_execution_teststeps ts
+     ON ts.TESTCASE_ID = tc.ID
+JOIN cqeexecution.jenkins_execution_testsuite su
+     ON su.ID = tc.TEST_SUITE_ID
+JOIN cqeexecution.apps_journey_mapping ce
+     ON ce.APP_NAME = su.TESTSUITE
+WHERE
+  (${journey} = 'All' OR LOWER(ce.JOURNEY) = LOWER(${journey}))
+ORDER BY tc.TESTCASE, ts.STEPNAME;
+
+
+
+
+
+SELECT DISTINCT JOURNEY FROM cqeexecution.apps_journey_mapping ORDER BY JOURNEY;
+
+
+SELECT DISTINCT TESTSUITE
+FROM cqeexecution.jenkins_execution_testsuite tsu
+JOIN cqeexecution.apps_journey_mapping ce
+  ON TRIM(LOWER(tsu.TESTSUITE)) = TRIM(LOWER(ce.APP_NAME))
+WHERE
+  (${journey} = 'All' OR LOWER(ce.JOURNEY) = LOWER(${journey}))
+ORDER BY TESTSUITE;
+
+
+
+
+SELECT DISTINCT TESTCASE
+FROM cqeexecution.jenkins_execution_testcase tc
+JOIN cqeexecution.jenkins_execution_testsuite tsu
+  ON tsu.ID = tc.TEST_SUITE_ID
+JOIN cqeexecution.apps_journey_mapping ce
+  ON ce.APP_NAME = tsu.TESTSUITE
+WHERE
+  (${journey} = 'All' OR LOWER(ce.JOURNEY) = LOWER(${journey}))
+  AND (${testsuite} = 'All' OR LOWER(tsu.TESTSUITE) = LOWER(${testsuite}))
+ORDER BY TESTCASE;
+
+
+SELECT DISTINCT MULE_ENVIRONMENT FROM cqeexecution.jenkins_execution_testsuite ORDER BY MULE_ENVIRONMENT;
+
+
+
+SELECT
+  ce.JOURNEY AS JOURNEY,
+  CASE
+    WHEN SUM(CASE WHEN ts.STATUS = 'FAIL' THEN 1 ELSE 0 END) > 0 THEN 'DOWN'
+    ELSE 'UP'
+  END AS STATUS
+FROM cqeexecution.apps_journey_mapping ce
+JOIN cqeexecution.jenkins_execution_testsuite tsu
+  ON TRIM(LOWER(tsu.TESTSUITE)) = TRIM(LOWER(ce.APP_NAME))
+JOIN cqeexecution.jenkins_execution_testcase tc
+  ON tc.TEST_SUITE_ID = tsu.ID
+JOIN cqeexecution.jenkins_execution_teststeps ts
+  ON ts.TESTCASE_ID = tc.ID
+WHERE
+  (${environment} = 'All' OR LOWER(tsu.MULE_ENVIRONMENT) = LOWER(${environment}))
+GROUP BY ce.JOURNEY
+ORDER BY ce.JOURNEY;
+
+
+SELECT
+  tsu.ID AS TESTSUITE_ID,
+  tsu.TESTSUITE AS TESTSUITE_NAME,
+  CASE
+    WHEN SUM(CASE WHEN ts.STATUS = 'FAIL' THEN 1 ELSE 0 END) > 0 THEN 'DOWN'
+    ELSE 'UP'
+  END AS STATUS
+FROM cqeexecution.jenkins_execution_testsuite tsu
+JOIN cqeexecution.apps_journey_mapping ce
+  ON TRIM(LOWER(tsu.TESTSUITE)) = TRIM(LOWER(ce.APP_NAME))
+JOIN cqeexecution.jenkins_execution_testcase tc
+  ON tc.TEST_SUITE_ID = tsu.ID
+JOIN cqeexecution.jenkins_execution_teststeps ts
+  ON ts.TESTCASE_ID = tc.ID
+WHERE
+  (${journey} = 'All' OR LOWER(ce.JOURNEY) = LOWER(${journey}))
+  AND (${environment} = 'All' OR LOWER(tsu.MULE_ENVIRONMENT) = LOWER(${environment}))
+GROUP BY tsu.TESTSUITE
+ORDER BY tsu.TESTSUITE;
+
+
+
+
+SELECT
+  tc.TESTCASE AS TESTCASE_NAME,
+  ts.STEPNAME AS TESTSTEP_NAME,
+  ts.ENDPOINT_URL,
+  CASE WHEN ts.STATUS = 'PASS' THEN 'UP' ELSE 'DOWN' END AS STATUS
+FROM cqeexecution.jenkins_execution_testcase tc
+JOIN cqeexecution.jenkins_execution_testsuite tsu
+  ON tsu.ID = tc.TEST_SUITE_ID
+JOIN cqeexecution.apps_journey_mapping ce
+  ON ce.APP_NAME = tsu.TESTSUITE
+JOIN cqeexecution.jenkins_execution_teststeps ts
+  ON ts.TESTCASE_ID = tc.ID
+WHERE
+  (${journey} = 'All' OR LOWER(ce.JOURNEY) = LOWER(${journey}))
+  AND (${testsuite} = 'All' OR LOWER(tsu.TESTSUITE) = LOWER(${testsuite}))
+  AND (${environment} = 'All' OR LOWER(tsu.MULE_ENVIRONMENT) = LOWER(${environment}))
+ORDER BY tc.TESTCASE, ts.STEPNAME;
+
+
+
+
+
+
+
+
+
+
+
+
+
