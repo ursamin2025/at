@@ -1,0 +1,19 @@
+SELECT 
+    ts.TESTSUITE,
+    CASE WHEN SUM(ts.STATUS = 'PASS') = COUNT(*) THEN 'UP' ELSE 'DOWN' END AS STATUS_INDICATOR
+FROM execution_jenkins_execution_testsuite ts
+JOIN execution_jenkins_execution_testsuite t2 
+    ON t2.TEST_SUITE_ID = ts.ID
+WHERE 
+    (
+        LOWER(ts.ENVIRONMENT) = LOWER('$environment')
+        OR '$environment' = 'ALL'
+        OR '$environment' = ''
+    )
+    AND (
+        LOWER(ts.BUILD_ID) = LOWER('$build_id')
+        OR '$build_id' = 'ALL'
+        OR '$build_id' = ''
+    )
+GROUP BY ts.TESTSUITE
+ORDER BY ts.TESTSUITE;
